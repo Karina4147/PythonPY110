@@ -28,7 +28,7 @@ def current_weather(lat, lon):
     """
     Функция разработана для получения данных о погоде. Используется 2 аргумента: lat - широта, lon - долгота.
     """
-    token = '55173cd3750846a8a4e182916250705'  # Вставить ваш токен из api.weatherapi.com
+    token = 'd578b790a1394e348b6154238252105'  # Вставить ваш токен из api.weatherapi.com
     url = f"https://api.weatherapi.com/v1/current.json?key={token}&q={lat},{lon}"
     response = requests.get(url)
     data = response.json()
