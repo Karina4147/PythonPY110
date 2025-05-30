@@ -4,24 +4,25 @@ from logic.services import filtering_category
 
 def product_view_json(request):
     if request.method == "GET":
+        # Обработка id из параметров запроса (уже было реализовано ранее)
         id_ = request.GET.get('id')
         if id_:
             if id_ in DATABASE:
-                return JsonResponse(DATABASE[id_])
-            else:
-                return HttpResponseNotFound("Данного продукта нет в базе данных")
+                return JsonResponse(DATABASE[id_], json_dumps_params={'ensure_ascii': False,
+                                                                      'indent': 4})
+            return HttpResponseNotFound("Данного продукта нет в базе данных")
 
+        # Обработка фильтрации из параметров запроса
         category_key = request.GET.get("category")  # Считали 'category'
-        if ordering_key := request.GET.get("ordering"):  # Если в параметрах есть 'ordering'
+        if ordering_key := request.GET.get("ordering"): # Если в параметрах есть 'ordering'
             reverse = request.GET.get("reverse")
             if reverse and reverse.lower() == 'true':  # Если в параметрах есть 'ordering' и 'reverse'=True
-                data = filtering_category(DATABASE, category_key="category", ordering_key="ordering", reverse=True)
+                data = filtering_category(DATABASE, 'category', 'ordering', reverse=True)  #TODO Использовать filtering_category и провести фильтрацию с параметрами category, ordering, reverse=True
             else:  # Если не обнаружили в адресно строке ...&reverse=true , значит reverse=False
-                data = filtering_category(DATABASE, category_key="category", ordering_key="ordering", reverse=False)
+                data = filtering_category(DATABASE, 'category', 'ordering', reverse=False) #  TODO Использовать filtering_category и провести фильтрацию с параметрами category, ordering, reverse=False
         else:
-            data = filtering_category(DATABASE, category_key="category")
+            data = filtering_category(DATABASE, 'category') #  TODO Использовать filtering_category и провести фильтрацию с параметрами category
         # В этот раз добавляем параметр safe=False, для корректного отображения списка в JSON
-
         return JsonResponse(data, safe=False, json_dumps_params={'ensure_ascii': False,
                                                                  'indent': 4})
 
