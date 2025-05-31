@@ -20,7 +20,7 @@ def filtering_category(database: dict[str, dict],
         result = list(database.values())
         # В итоге должен быть [dict, dict, dict, ...], где dict - словарь продукта из database
     if ordering_key is not None:
-        result.sort(key=lambda p: p["ordering_key"], reverse=reverse)
+        result.sort(key=lambda p: p[ordering_key], reverse=reverse)
         # Так как result будет списком, то можно применить метод sort, но нужно определиться с тем по какому элементу сортируем и в каком направлении
         # result.sort(key=lambda ..., reverse=reverse)
         # Вспомните как можно сортировать по значениям словаря при помощи lambda функции

@@ -17,11 +17,11 @@ def product_view_json(request):
         if ordering_key := request.GET.get("ordering"): # Если в параметрах есть 'ordering'
             reverse = request.GET.get("reverse")
             if reverse and reverse.lower() == 'true':  # Если в параметрах есть 'ordering' и 'reverse'=True
-                data = filtering_category(DATABASE, 'category', 'ordering', reverse=True)  #TODO Использовать filtering_category и провести фильтрацию с параметрами category, ordering, reverse=True
+                data = filtering_category(DATABASE, category_key, ordering_key, True)
             else:  # Если не обнаружили в адресно строке ...&reverse=true , значит reverse=False
-                data = filtering_category(DATABASE, 'category', 'ordering', reverse=False) #  TODO Использовать filtering_category и провести фильтрацию с параметрами category, ordering, reverse=False
+                data = filtering_category(DATABASE, category_key, ordering_key, False)
         else:
-            data = filtering_category(DATABASE, 'category') #  TODO Использовать filtering_category и провести фильтрацию с параметрами category
+            data = filtering_category(DATABASE, category_key)
         # В этот раз добавляем параметр safe=False, для корректного отображения списка в JSON
         return JsonResponse(data, safe=False, json_dumps_params={'ensure_ascii': False,
                                                                  'indent': 4})

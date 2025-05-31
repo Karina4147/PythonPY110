@@ -2,6 +2,7 @@ import json
 import os
 from app_store.models import DATABASE
 
+
 PATH_CART = 'cart.json'  # Путь до файла корзины
 
 
