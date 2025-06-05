@@ -1,6 +1,59 @@
 from django.http import HttpResponse, JsonResponse, HttpResponseNotFound
 from .models import DATABASE
 from logic.services import filtering_category
+from logic.control_cart import view_in_cart, add_to_cart, remove_from_cart
+from django.shortcuts import render
+
+def cart_view(request):
+    if request.method == "GET":
+        username = ''
+        data = view_in_cart(username)[username]  # Получаем корзину пользователя username
+
+        products = []  # Список продуктов
+        for product_id, quantity in data['products'].items():
+            product = DATABASE[product_id]  # Получаем информацию о продукте
+
+            product["quantity"] = quantity  # Реализуйте
+
+            product["price_total"] = f"{quantity * product["price_after"]: 2f}"  # Реализуйте
+
+            products.append(product)
+
+        return render(request, "app_store/cart.html", context={"products": products})
+
+
+def cart_view_json(request):
+    if request.method == "GET":
+        username = ''
+        data = view_in_cart()
+        return JsonResponse(data, json_dumps_params={'ensure_ascii': False,
+                                                     'indent': 4})
+
+
+def cart_add_view_json(request, id_product):
+    if request.method == "GET":
+        username = ''
+        result = add_to_cart(id_product)
+        if result:
+            return JsonResponse({"answer": "Продукт успешно добавлен в корзину"},
+                                json_dumps_params={'ensure_ascii': False})
+
+        return JsonResponse({"answer": "Неудачное добавление в корзину"},
+                            status=404,
+                            json_dumps_params={'ensure_ascii': False})
+
+
+def cart_del_view_json(request, id_product):
+    if request.method == "GET":
+        username = ''
+        result = remove_from_cart(id_product, username)
+        if result:
+            return JsonResponse({"answer": "Продукт успешно удалён из корзины"},
+                                json_dumps_params={'ensure_ascii': False})
+
+        return JsonResponse({"answer": "Неудачное удаление из корзины"},
+                            status=404,
+                            json_dumps_params={'ensure_ascii': False})
 
 def product_view_json(request):
     if request.method == "GET":
@@ -29,26 +82,34 @@ def product_view_json(request):
 
 def shop_view(request):
     if request.method == "GET":
-        with open('app_store/shop.html', encoding="utf-8") as f:
-            data = f.read()  # Читаем HTML файл
-        return HttpResponse(data)  # Отправляем HTML файл как ответ
-# Create your views here.
+        # Обработка фильтрации из параметров запроса
+        category_key = request.GET.get("category")
+        if ordering_key := request.GET.get("ordering"):
+            if request.GET.get("reverse") in ('true', 'True'):
+                data = filtering_category(DATABASE, category_key, ordering_key, True)
+            else:
+                data = filtering_category(DATABASE, category_key, ordering_key)
+        else:
+            data = filtering_category(DATABASE, category_key)
+        return render(request, 'app_store/shop.html',
+                      context={"products": data,
+                               "category": category_key})
 
 
 def product_page_view(request, page):
     if request.method == "GET":
-        if isinstance(page, str):  # Проверяем, что в параметр page передали значение строкового типа
-            for data in DATABASE.values():  # Перебираем все товары (словари) в DATABASE
-                if data['html'] == page:  # Если значение переданного параметра совпадает именем html файла, получаемого по ключу
-                    with open(f'app_store/product/{page}.html', encoding="utf-8") as f:
-                        data = f.read()
-                        return HttpResponse(data)
+        if isinstance(page, str):
+            for data in DATABASE.values():
+                if data['html'] == page:  # Если значение переданного параметра совпадает именем html файла
+                    data_other_products = [product for product in DATABASE.values() if product['category'] == data['category'] and product['id'] != data['id']][:5]
+                    return render(request, 'app_store/product.html', context={'product': data,
+                                                                              'other_products': data_other_products})
 
-        elif isinstance(page, int):  # Ветка для обработки типа int
+        elif isinstance(page, int):
             data = DATABASE.get(str(page))  # Получаем какой странице соответствует данный id
             if data:  # Если по данному page было найдено значение
-                with open(f'app_store/product/{data["html"]}.html',
-                          encoding="utf-8") as f:  # Определяем название файла для открытия
-                    return HttpResponse(f.read())
+                data_other_products = [product for product in DATABASE.values() if product['category'] == data['category'] and product['id'] != data['id']][:5]
+                return render(request, 'app_store/product.html', context={'product': data,
+                                                                          'other_products': data_other_products})
 
         return HttpResponse(status=404)
