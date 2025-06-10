@@ -1,14 +1,11 @@
-{% extends 'app_store/base.html' %}
-{%load static%}
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-	  {% block title %}
-	  <title>Интернет-магазин здоровых продуктов</title>
-	  {% endblock %}
-  </head>
-  <body>
-  {% block content %}
+	{% extends 'app_store/base.html' %}
+	{%load static%}
+
+	{% block title %}
+	<title>Интернет-магазин здоровых продуктов</title>
+	{% endblock %}
+
+	{% block content %}
     <div class="hero-wrap hero-bread" style="background-image: url({% static 'app_store/images/bg_1.jpg);">
       <div class="container">
         <div class="row no-gutters slider-text align-items-center justify-content-center">
@@ -126,5 +123,3 @@
 	<!-- Функциональность добавления в избранное товара по нажатию на кнопку (должен быть реализован адрес /wishlist/add/) -->
   	<script src="{% static 'app_store/js/appAddToWishlist.js' %}"></script>
   {% endblock %}
-  </body>
-</html>

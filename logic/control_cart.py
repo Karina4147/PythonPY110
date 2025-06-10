@@ -85,8 +85,7 @@ def remove_from_cart(id_product: str, username: str = '') -> bool:
 
     if id_product not in user_cart:
         return False
-    if id_product in user_cart:
-        return user_cart.pop(id_product)
+    user_cart.pop(id_product)
 
     with open(PATH_CART, mode='w', encoding='utf-8') as f:  # Создаём файл и записываем корзину
         json.dump(cart, f)
